@@ -3,9 +3,14 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 exports.initiate = async (req, res) => {
-    const { customerPhone, customerName, platform, decoderNumber, amount } = req.body;
+    const { customerPhone, customerName, platform, decoderNumber, amount, telecom = 'MP' } = req.body;
 
     try {
+        // Validate required fields
+        if (!customerPhone || !amount || !decoderNumber) {
+            return res.status(400).json({ message: 'Missing required fields: customerPhone, amount, decoderNumber' });
+        }
+
         // Create pending transaction
         const transaction = await prisma.transaction.create({
             data: {
@@ -18,25 +23,22 @@ exports.initiate = async (req, res) => {
             },
         });
 
-        // Call external payment provider (Mock example)
-        // Replace with actual provider API details
+        // Call SerdiPay API
         try {
             const response = await axios.post(process.env.PAYMENT_PROVIDER_URL, {
+                clientPhone: customerPhone,
                 amount,
                 currency: 'USD',
-                external_reference: transaction.id,
-                callback_url: `${process.env.BACKEND_URL}/api/payment/webhook`,
-                customer: {
-                    phone: customerPhone,
-                    name: customerName
-                }
+                telecom: telecom,
+                callback_url: `${process.env.BACKEND_URL}/api/payment/webhook`
             }, {
                 headers: {
-                    'Authorization': `Bearer ${process.env.PAYMENT_API_KEY}`
+                    'api_key': process.env.PAYMENT_API_KEY,
+                    'Content-Type': 'application/json'
                 }
             });
 
-            // If provider returns an ID immediately, update it
+            // Store provider transaction ID if returned
             if (response.data && response.data.id) {
                 await prisma.transaction.update({
                     where: { id: transaction.id },
@@ -45,51 +47,77 @@ exports.initiate = async (req, res) => {
             }
 
             res.status(201).json({
-                message: 'Payment initiated',
+                message: 'Payment initiated successfully',
                 transactionId: transaction.id,
-                paymentUrl: response.data.payment_url || null
+                providerResponse: response.data
             });
         } catch (apiError) {
-            console.error('Payment Provider Error:', apiError.response?.data || apiError.message);
-            res.status(502).json({ message: 'Failed to communicate with payment provider' });
+            console.error('SerdiPay API Error:', apiError.response?.data || apiError.message);
+            
+            // Update transaction status to failed
+            await prisma.transaction.update({
+                where: { id: transaction.id },
+                data: { status: 'FAILED' }
+            });
+
+            res.status(502).json({ 
+                message: 'Failed to initiate payment with provider',
+                error: apiError.response?.data || apiError.message
+            });
         }
 
     } catch (error) {
-        console.error(error);
+        console.error('Error creating transaction:', error);
         res.status(500).json({ message: 'Error creating transaction' });
     }
 };
 
 exports.webhook = async (req, res) => {
-    const signature = req.headers['x-payment-signature'];
-    const payload = JSON.stringify(req.body);
-
-    // Security Check: Verify signature from provider
-    const expectedSignature = crypto
-        .createHmac('sha256', process.env.PAYMENT_WEBHOOK_SECRET)
-        .update(payload)
-        .digest('hex');
-
-    if (signature !== expectedSignature) {
-        return res.status(401).json({ message: 'Invalid signature' });
-    }
-
-    const { external_reference, status, provider_id } = req.body;
-
     try {
-        if (status === 'SUCCESS' || status === 'PAID') {
-            await prisma.transaction.update({
-                where: { id: external_reference },
-                data: {
-                    status: 'PAID',
-                    providerTransactionId: provider_id,
-                },
-            });
+        const { transactionId, status, paymentId } = req.body;
+
+        // Validate webhook payload
+        if (!transactionId || !status) {
+            return res.status(400).json({ message: 'Missing required webhook fields' });
         }
 
-        res.status(200).send('Webhook processed');
+        // Update transaction based on payment status
+        let transactionStatus = 'PENDING';
+        if (status === 'SUCCESS' || status === 'PAID' || status === 'COMPLETED') {
+            transactionStatus = 'PAID';
+        }
+
+        await prisma.transaction.update({
+            where: { id: transactionId },
+            data: {
+                status: transactionStatus,
+                providerTransactionId: paymentId || undefined,
+            },
+        });
+
+        console.log(`Payment webhook processed for transaction: ${transactionId}, status: ${transactionStatus}`);
+        res.status(200).json({ message: 'Webhook processed successfully' });
     } catch (error) {
         console.error('Webhook processing error:', error);
         res.status(500).json({ message: 'Error processing webhook' });
+    }
+};
+
+exports.getTransactionStatus = async (req, res) => {
+    try {
+        const { transactionId } = req.params;
+
+        const transaction = await prisma.transaction.findUnique({
+            where: { id: transactionId }
+        });
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        res.status(200).json(transaction);
+    } catch (error) {
+        console.error('Error fetching transaction:', error);
+        res.status(500).json({ message: 'Error fetching transaction' });
     }
 };

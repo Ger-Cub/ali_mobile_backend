@@ -1,0 +1,38 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "toolDescription": "Déclenche le paiement dans le système Ali Mobile en envoyant les informations de l'utilisateur WhatsApp\n\n📱 INFORMATIONS REQUISES:\n- phone: numéro de téléphone du client (ex: +243812345678)\n- userName: nom du client WhatsApp\n- decoderNumber: numéro du décodeur TV\n- amount: montant à payer (en USD)\n- telecom: opérateur de paiement mobile\n\n💳 **Valeurs possibles pour `telecom`:**\n- `AM` - Airtel Money\n- `OM` - Orange Money  \n- `MP` - Mpesa/Vodacom\n- `AF` - Africell\n\n✅ RÉPONSE ATTENDUE:\n{\n  \"message\": \"Payment initiated successfully\",\n  \"transactionId\": \"uuid-du-paiement\",\n  \"providerResponse\": {...}\n}",
+        "method": "POST",
+        "url": "http://localhost:5000/api/payment/initiate",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customerPhone\": \"{{ $json.phone }}\",\n  \"customerName\": \"{{ $json.userName || 'Customer' }}\",\n  \"platform\": \"WhatsApp\",\n  \"decoderNumber\": \"{{ $json.decoderNumber }}\",\n  \"amount\": {{ $json.amount }},\n  \"telecom\": \"{{ $json.telecom || 'MP' }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        272,
+        192
+      ],
+      "id": "a41c59c5-43eb-43b3-bfe2-d4a6a9561ddc",
+      "name": "Initiate Payment"
+    }
+  ],
+  "connections": {
+    "Initiate Payment": {
+      "ai_tool": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7046fd17c6464e45939cba187bee7f5553032653e6338f3db1151f778397a768"
+  }
+}

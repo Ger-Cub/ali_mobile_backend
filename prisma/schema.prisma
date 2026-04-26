@@ -28,6 +28,7 @@ model RefreshToken {
 enum TransactionStatus {
   PENDING
   PAID
+  FAILED
   ACTIVATED
 }
 

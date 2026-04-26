@@ -1,0 +1,110 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "path": "activation-notify",
+        "responseMode": "onReceived",
+        "responseData": "{\n  \"status\": \"received\",\n  \"message\": \"Notification received\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        50,
+        300
+      ],
+      "id": "webhook-activation",
+      "name": "Webhook - Activation Confirmation"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extraire les informations du payload webhook\nconst payload = $json;\n\nreturn {\n  transactionId: payload.transactionId,\n  customerPhone: payload.customerPhone,\n  customerName: payload.customerName,\n  decoderNumber: payload.decoderNumber,\n  amount: payload.amount,\n  status: payload.status,\n  activationTime: new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "id": "process-activation-data",
+      "name": "Process Activation Data"
+    },
+    {
+      "parameters": {
+        "message": "✅ Service activé avec succès!\n\n📱 Client: {{ $json.customerName }}\n📞 Téléphone: {{ $json.customerPhone }}\n📺 Décodeur: {{ $json.decoderNumber }}\n💰 Montant payé: {{ $json.amount }} USD\n🔄 Transaction ID: {{ $json.transactionId }}\n⏰ Date d'activation: {{ $json.activationTime }}"
+      },
+      "type": "n8n-nodes-base.sendWhatsAppMessage",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ],
+      "id": "notify-whatsapp",
+      "name": "Send WhatsApp Confirmation"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/api/admin/confirm-activation",
+        "method": "POST",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"transactionId\": \"{{ $json.transactionId }}\",\n  \"customerPhone\": \"{{ $json.customerPhone }}\",\n  \"status\": \"ACTIVATED\",\n  \"activatedAt\": \"{{ $json.activationTime }}\"\n}"
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        650,
+        300
+      ],
+      "id": "update-activation-status",
+      "name": "Update Activation Status in DB"
+    }
+  ],
+  "connections": {
+    "Webhook - Activation Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Process Activation Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Activation Data": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Activation Status in DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Confirmation": {
+      "main": [
+        []
+      ]
+    },
+    "Update Activation Status in DB": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7046fd17c6464e45939cba187bee7f5553032653e6338f3db1151f778397a768"
+  }
+}

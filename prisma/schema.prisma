@@ -12,6 +12,7 @@ datasource db {
 model Admin {
   id            String         @id @default(uuid())
   email         String         @unique
+  name          String?        // Name of the admin
   password      String
   refreshTokens RefreshToken[]
   createdAt     DateTime       @default(now())

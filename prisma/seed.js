@@ -5,15 +5,20 @@ require('dotenv').config();
 async function main() {
     const email = 'admin@alimobile.com';
     const password = 'AdminPassword123!'; // Change this!
+    const name = 'Administrateur Principal';
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const admin = await prisma.admin.upsert({
         where: { email },
-        update: { password: hashedPassword },
+        update: { 
+            password: hashedPassword,
+            name: name
+        },
         create: {
             email,
             password: hashedPassword,
+            name: name
         },
     });
 

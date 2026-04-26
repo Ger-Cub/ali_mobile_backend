@@ -45,7 +45,13 @@ exports.login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
-        res.json({ accessToken });
+        res.json({ 
+            accessToken,
+            admin: {
+                name: storedToken ? storedToken.admin.name : admin.name,
+                email: storedToken ? storedToken.admin.email : admin.email
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -92,7 +98,13 @@ exports.refreshToken = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        res.json({ accessToken });
+        res.json({ 
+            accessToken,
+            admin: {
+                name: storedToken ? storedToken.admin.name : admin.name,
+                email: storedToken ? storedToken.admin.email : admin.email
+            }
+        });
     } catch (error) {
         console.error(error);
         if (error.name === 'TokenExpiredError') {

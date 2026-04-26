@@ -61,7 +61,7 @@ exports.getStats = async (req, res) => {
         const activatedTransactions = await prisma.transaction.count({ where: { status: 'ACTIVATED' } });
         const pendingTransactions = await prisma.transaction.count({ where: { status: 'PENDING' } });
 
-        const totalRevenue = await prisma.transaction.aggregate({
+        const totalRevenueResult = await prisma.transaction.aggregate({
             where: {
                 OR: [{ status: 'PAID' }, { status: 'ACTIVATED' }]
             },
@@ -70,13 +70,42 @@ exports.getStats = async (req, res) => {
             }
         });
 
+        // Platform Breakdown
+        const platformBreakdown = await prisma.transaction.groupBy({
+            by: ['platform'],
+            _count: {
+                id: true
+            }
+        });
+
+        // Daily Revenue for the last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const dailyRevenueRaw = await prisma.$queryRaw`
+            SELECT 
+                DATE_TRUNC('day', "createdAt") as date,
+                SUM(amount) as revenue
+            FROM "Transaction"
+            WHERE status IN ('PAID', 'ACTIVATED') AND "createdAt" >= ${sevenDaysAgo}
+            GROUP BY date
+            ORDER BY date ASC
+        `;
+
+        const dailyRevenue = dailyRevenueRaw.map(item => ({
+            date: item.date.toISOString().split('T')[0],
+            revenue: Number(item.revenue) || 0
+        }));
+
         res.json({
             totalTransactions,
             paidTransactions,
             activatedTransactions,
             pendingTransactions,
-            totalRevenue: totalRevenue._sum.amount || 0,
-            activationRate: totalTransactions > 0 ? (activatedTransactions / totalTransactions) * 100 : 0
+            totalRevenue: totalRevenueResult._sum.amount || 0,
+            activationRate: totalTransactions > 0 ? (activatedTransactions / totalTransactions) * 100 : 0,
+            platformBreakdown,
+            dailyRevenue
         });
     } catch (error) {
         console.error(error);

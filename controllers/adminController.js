@@ -112,3 +112,33 @@ exports.getStats = async (req, res) => {
         res.status(500).json({ message: 'Error fetching stats' });
     }
 };
+
+exports.testWhatsApp = async (req, res) => {
+    const { phone, name } = req.body;
+
+    if (!phone) {
+        return res.status(400).json({ message: 'Phone number is required' });
+    }
+
+    try {
+        const response = await axios.post(process.env.N8N_ACTIVATION_WEBHOOK_URL, {
+            transactionId: "TEST-12345",
+            customerPhone: phone,
+            customerName: name || "Utilisateur Test",
+            platform: "WhatsApp",
+            decoderNumber: "0000000000",
+            status: 'TEST_NOTIFICATION'
+        });
+
+        res.json({ 
+            message: 'Test notification sent to n8n', 
+            n8nResponse: response.data 
+        });
+    } catch (error) {
+        console.error('Failed to notify n8n:', error.message);
+        res.status(500).json({ 
+            message: 'Failed to send test notification', 
+            error: error.message 
+        });
+    }
+};

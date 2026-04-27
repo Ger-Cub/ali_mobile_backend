@@ -4,6 +4,9 @@ const prisma = require('../config/db');
 
 // Helper to generate tokens
 const generateTokens = (adminId) => {
+    if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+        throw new Error('JWT secrets are not configured in environment variables');
+    }
     const accessToken = jwt.sign({ id: adminId }, process.env.JWT_SECRET, {
         expiresIn: '15m',
     });
@@ -38,18 +41,19 @@ exports.login = async (req, res) => {
         });
 
         // Set cookie
+        const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict',
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
         res.json({ 
             accessToken,
             admin: {
-                name: storedToken ? storedToken.admin.name : admin.name,
-                email: storedToken ? storedToken.admin.email : admin.email
+                name: admin.name,
+                email: admin.email
             }
         });
     } catch (error) {
@@ -71,7 +75,7 @@ exports.refreshToken = async (req, res) => {
             include: { admin: true },
         });
 
-        if (!storedToken) {
+        if (!storedToken || !storedToken.admin) {
             return res.status(403).json({ message: 'Invalid refresh token' });
         }
 
@@ -91,18 +95,19 @@ exports.refreshToken = async (req, res) => {
         });
 
         // Set new cookie
+        const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict',
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         res.json({ 
             accessToken,
             admin: {
-                name: storedToken ? storedToken.admin.name : admin.name,
-                email: storedToken ? storedToken.admin.email : admin.email
+                name: storedToken.admin.name,
+                email: storedToken.admin.email
             }
         });
     } catch (error) {
@@ -122,7 +127,12 @@ exports.logout = async (req, res) => {
         if (token) {
             await prisma.refreshToken.deleteMany({ where: { token } });
         }
-        res.clearCookie('refreshToken');
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
+        });
         res.json({ message: 'Logged out successfully' });
     } catch (error) {
         console.error(error);

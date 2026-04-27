@@ -18,19 +18,25 @@ app.use(helmet());
 const allowedOrigins = [
     process.env.CLIENT_URL,
     'https://www.alimobile.tech',
+    'https://alimobile.tech',
     'http://localhost:3000',
     'http://localhost:5173',
-    'http://localhost:8080'
-].filter(Boolean);
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:8080'
+].filter(Boolean).map(origin => origin.replace(/\/$/, ""));
 
 const corsOptions = {
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.includes(origin)) {
+        const cleanOrigin = origin.replace(/\/$/, "");
+        if (allowedOrigins.includes(cleanOrigin)) {
             callback(null, true);
         } else {
+            console.warn(`CORS blocked for origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },

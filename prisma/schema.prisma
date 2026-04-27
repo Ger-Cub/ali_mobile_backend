@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,36 +9,36 @@ datasource db {
 model Admin {
   id            String         @id @default(uuid())
   email         String         @unique
-  name          String?        // Name of the admin
   password      String
-  refreshTokens RefreshToken[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  name          String?
+  refreshTokens RefreshToken[]
 }
 
 model RefreshToken {
   id      String @id @default(uuid())
   token   String @unique
-  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId String
-}
-
-enum TransactionStatus {
-  PENDING
-  PAID
-  FAILED
-  ACTIVATED
+  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
   id                    String            @id @default(uuid())
   customerPhone         String
   customerName          String?
-  platform              String            // WhatsApp or Telegram
+  platform              String
   decoderNumber         String
   amount                Float
   status                TransactionStatus @default(PENDING)
   providerTransactionId String?           @unique
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  ACTIVATED
+  FAILED
 }

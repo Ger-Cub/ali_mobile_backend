@@ -12,6 +12,36 @@ exports.getTransactions = async (req, res) => {
     }
 };
 
+exports.confirmTestPayment = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const transaction = await prisma.transaction.findUnique({ where: { id } });
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        if (!transaction.isTest) {
+            return res.status(400).json({ message: 'Only test transactions can be manually confirmed here' });
+        }
+
+        if (transaction.status !== 'PENDING') {
+            return res.status(400).json({ message: 'Transaction is already processed' });
+        }
+
+        const updatedTransaction = await prisma.transaction.update({
+            where: { id },
+            data: { status: 'PAID' },
+        });
+
+        res.json({ message: 'Test payment confirmed manually', transaction: updatedTransaction });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error confirming test payment' });
+    }
+};
+
 exports.activateTransaction = async (req, res) => {
     const { id } = req.params;
 

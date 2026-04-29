@@ -33,6 +33,7 @@ model Transaction {
   amount                Float
   status                TransactionStatus @default(PENDING)
   providerTransactionId String?           @unique
+  isTest                Boolean           @default(false)
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
 }

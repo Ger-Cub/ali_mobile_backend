@@ -83,11 +83,35 @@ node scripts/create-admin.js <email> <mot_de_passe> "<nom>"
 
 ## 💸 Transactions
 
-### 1. Liste des Transactions
+### 1. Initialiser un Paiement
+`POST /api/payment/initiate`
+Initie un paiement via SerdiPay.
+
+**Corps de la requête :**
+```json
+{
+  "customerPhone": "243810000000",
+  "customerName": "Nom Client",
+  "platform": "WhatsApp",
+  "decoderNumber": "1234567890",
+  "amount": 10.0
+}
+```
+
+### 2. Initialiser un Paiement de TEST
+`POST /api/payment/initiate-test`
+Simule un paiement sans appeler SerdiPay. La transaction est marquée comme test (`isTest: true`).
+
+### 3. Liste des Transactions
 `GET /api/admin/transactions`
 *Nécessite Header: `Authorization: Bearer <token>`*
 
-### 2. Activer une Transaction
+### 4. Confirmer un Paiement de TEST (Admin)
+`PATCH /api/admin/transactions/:id/confirm-test`
+*Nécessite Header: `Authorization: Bearer <token>`*
+Permet à l'admin de confirmer manuellement la réception d'un paiement de test. Passe le statut à `PAID`.
+
+### 5. Activer une Transaction
 `PATCH /api/admin/transactions/:id/activate`
 *Nécessite Header: `Authorization: Bearer <token>`*
 

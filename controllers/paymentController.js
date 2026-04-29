@@ -73,6 +73,43 @@ exports.initiate = async (req, res) => {
     }
 };
 
+exports.initiateTest = async (req, res) => {
+    const { customerPhone, customerName, platform, chatId, decoderNumber, amount } = req.body;
+
+    try {
+        // Validate required fields
+        if (!customerPhone || !amount || !decoderNumber) {
+            return res.status(400).json({ message: 'Missing required fields: customerPhone, amount, decoderNumber' });
+        }
+
+        // Create pending transaction marked as test
+        const transaction = await prisma.transaction.create({
+            data: {
+                customerPhone,
+                customerName,
+                chatId,
+                platform,
+                decoderNumber,
+                amount,
+                status: 'PENDING',
+                isTest: true,
+                providerTransactionId: `TEST-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
+            },
+        });
+
+        res.status(201).json({
+            message: 'Test payment initiated successfully',
+            transactionId: transaction.id,
+            status: transaction.status,
+            isTest: true
+        });
+
+    } catch (error) {
+        console.error('Error creating test transaction:', error);
+        res.status(500).json({ message: 'Error creating test transaction' });
+    }
+};
+
 exports.webhook = async (req, res) => {
     try {
         const { transactionId, status, paymentId } = req.body;

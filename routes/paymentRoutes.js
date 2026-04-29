@@ -9,6 +9,7 @@ const webhookLimiter = rateLimit({
 });
 
 router.post('/initiate', paymentController.initiate);
+router.post('/initiate-test', paymentController.initiateTest);
 router.post('/webhook', webhookLimiter, paymentController.webhook);
 router.get('/status/:transactionId', paymentController.getTransactionStatus);
 

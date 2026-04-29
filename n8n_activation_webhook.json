@@ -2,103 +2,249 @@
   "nodes": [
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "activation-notify",
-        "responseMode": "onReceived",
-        "responseData": "{\n  \"status\": \"received\",\n  \"message\": \"Notification received\"\n}",
         "options": {}
       },
+      "id": "e3714388-5c54-471e-8e3f-a22afbff2f14",
+      "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        50,
-        300
+        288,
+        1344
       ],
-      "id": "webhook-activation",
-      "name": "Webhook - Activation Confirmation"
+      "webhookId": "a6398dc5-7725-46e5-93fb-5824e445b7c4"
     },
     {
       "parameters": {
-        "jsCode": "// Extraire les informations du payload webhook\nconst payload = $json;\n\nreturn {\n  transactionId: payload.transactionId,\n  customerPhone: payload.customerPhone,\n  customerName: payload.customerName,\n  decoderNumber: payload.decoderNumber,\n  amount: payload.amount,\n  status: payload.status,\n  activationTime: new Date().toISOString()\n};"
+        "jsCode": "const payload = $json.body || {};\n\nreturn [{\n  json: {\n    transactionId: payload.transactionId ?? null,\n    customerPhone: payload.customerPhone ?? null,\n    customerName: payload.customerName ?? null,\n    chatId: payload.chatId ?? null,\n    decoderNumber: payload.decoderNumber ?? null,\n    platform: payload.platform ?? null,\n    amount: payload.amount ?? 0,\n    status: payload.status ?? \"pending\",\n    activationTime: new Date().toISOString()\n  }\n}];"
       },
+      "id": "8614066a-6cdf-4841-9caa-4723356a6908",
+      "name": "Process Data",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        250,
-        300
-      ],
-      "id": "process-activation-data",
-      "name": "Process Activation Data"
+        496,
+        1344
+      ]
     },
     {
       "parameters": {
-        "message": "✅ Service activé avec succès!\n\n📱 Client: {{ $json.customerName }}\n📞 Téléphone: {{ $json.customerPhone }}\n📺 Décodeur: {{ $json.decoderNumber }}\n💰 Montant payé: {{ $json.amount }} USD\n🔄 Transaction ID: {{ $json.transactionId }}\n⏰ Date d'activation: {{ $json.activationTime }}"
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "transactionId",
+              "value": "={{ $json.transactionId }}"
+            },
+            {
+              "name": "customerPhone",
+              "value": "={{ $json.customerPhone }}"
+            },
+            {
+              "name": "customerName",
+              "value": "={{ $json.customerName }}"
+            },
+            {
+              "name": "chatId",
+              "value": "={{ $json.chatId }}"
+            },
+            {
+              "name": "decoderNumber",
+              "value": "={{ $json.decoderNumber }}"
+            },
+            {
+              "name": "platform",
+              "value": "={{ $json.platform }}"
+            },
+            {
+              "name": "status",
+              "value": "={{ $json.status }}"
+            },
+            {
+              "name": "activationTime",
+              "value": "={{ $json.activationTime }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "amount",
+              "value": "={{ $json.amount }}"
+            }
+          ]
+        },
+        "options": {}
       },
-      "type": "n8n-nodes-base.sendWhatsAppMessage",
+      "id": "f3ac241d-94cd-48ea-bfa2-6609dbaafe49",
+      "name": "Freeze Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        688,
+        1344
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "value2": "WhatsApp"
+            }
+          ]
+        }
+      },
+      "id": "c19cee74-e676-4e27-aa60-fb903b13b62f",
+      "name": "If Platform",
+      "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        450,
-        300
-      ],
-      "id": "notify-whatsapp",
-      "name": "Send WhatsApp Confirmation"
+        896,
+        1344
+      ]
     },
     {
       "parameters": {
-        "url": "http://localhost:5000/api/admin/confirm-activation",
+        "operation": "send",
+        "phoneNumberId": "YOUR_PHONE_NUMBER_ID",
+        "recipientPhoneNumber": "={{ $json.chatId || $json.customerPhone }}",
+        "textBody": "=✅ Confirmation d'Activation\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur {{ $json.decoderNumber }} a été activé.\n\nMontant: {{ $json.amount }} USD\nID: {{ $json.transactionId }}",
+        "additionalFields": {}
+      },
+      "id": "4b90b6e0-c8fd-4a74-a9fd-f2b0b704e000",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        1232
+      ],
+      "webhookId": "02527c96-612b-4b3f-b7d8-025971c09038",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "bmI1KsRcN3qVXcEc",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=✅ Confirmation d'Activation\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur {{ $json.decoderNumber }} a été activé.\n\nMontant: {{ $json.amount }} USD\nID: {{ $json.transactionId }}",
+        "additionalFields": {}
+      },
+      "id": "6308bf37-356c-4ae6-af04-950f27b2721c",
+      "name": "Send Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        1440
+      ],
+      "webhookId": "406dcea5-c753-407c-94be-9bcd88d3f0da",
+      "credentials": {
+        "telegramApi": {
+          "id": "2xSRuL8gkBAtQ7Bz",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
         "method": "POST",
+        "url": "https://ali-mobile-backend.onrender.com/api/admin/confirm-activation",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "jsonHeaders": "{ \"Content-Type\": \"application/json\" }",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"transactionId\": \"{{ $json.transactionId }}\",\n  \"customerPhone\": \"{{ $json.customerPhone }}\",\n  \"status\": \"ACTIVATED\",\n  \"activatedAt\": \"{{ $json.activationTime }}\"\n}"
+        "jsonBody": "={\n  \"transactionId\": \"={{ $item(0).$node['Freeze Data'].json.transactionId }}\",\n  \"customerPhone\": \"={{ $item(0).$node['Freeze Data'].json.customerPhone }}\",\n  \"status\": \"={{ $item(0).$node['Freeze Data'].json.status }}\",\n  \"activationTime\": \"={{ $item(0).$node['Freeze Data'].json.activationTime }}\"\n}",
+        "options": {}
       },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
+      "id": "248058c5-5fab-4114-9542-a4df14a90ce9",
+      "name": "Save to Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
       "position": [
-        650,
-        300
-      ],
-      "id": "update-activation-status",
-      "name": "Update Activation Status in DB"
+        1296,
+        1344
+      ]
     }
   ],
   "connections": {
-    "Webhook - Activation Confirmation": {
+    "Webhook": {
       "main": [
         [
           {
-            "node": "Process Activation Data",
+            "node": "Process Data",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Process Activation Data": {
+    "Process Data": {
       "main": [
         [
           {
-            "node": "Send WhatsApp Confirmation",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Update Activation Status in DB",
+            "node": "Freeze Data",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send WhatsApp Confirmation": {
+    "Freeze Data": {
       "main": [
-        []
+        [
+          {
+            "node": "If Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
-    "Update Activation Status in DB": {
+    "If Platform": {
       "main": [
-        []
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Save to Backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram": {
+      "main": [
+        [
+          {
+            "node": "Save to Backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },

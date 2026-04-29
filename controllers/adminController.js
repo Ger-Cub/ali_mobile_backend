@@ -55,6 +55,39 @@ exports.activateTransaction = async (req, res) => {
     }
 };
 
+exports.confirmActivation = async (req, res) => {
+    const { transactionId, status, customerPhone, customerName, chatId, platform, decoderNumber } = req.body;
+
+    if (!transactionId || !status) {
+        return res.status(400).json({ message: 'Missing required fields: transactionId and status' });
+    }
+
+    try {
+        const transaction = await prisma.transaction.findUnique({ where: { id: transactionId } });
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        const updatedTransaction = await prisma.transaction.update({
+            where: { id: transactionId },
+            data: {
+                status: status === 'ACTIVATED' ? 'ACTIVATED' : transaction.status,
+                customerPhone: customerPhone ?? transaction.customerPhone,
+                customerName: customerName ?? transaction.customerName,
+                chatId: chatId ?? transaction.chatId,
+                platform: platform ?? transaction.platform,
+                decoderNumber: decoderNumber ?? transaction.decoderNumber,
+            },
+        });
+
+        res.status(200).json({ message: 'Activation confirmed', transaction: updatedTransaction });
+    } catch (error) {
+        console.error('Error confirming activation:', error);
+        res.status(500).json({ message: 'Error confirming activation' });
+    }
+};
+
 exports.getStats = async (req, res) => {
     try {
         const totalTransactions = await prisma.transaction.count();

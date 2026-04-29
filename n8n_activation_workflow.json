@@ -1,0 +1,205 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "activation-notify",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                -16,
+                240
+            ],
+            "id": "d2f92c8b-2341-4ea6-8293-289584684d55",
+            "name": "Webhook - Activation Confirmation",
+            "webhookId": "b2b9ec4d-0114-4d6f-9a3b-4433894dc34e"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extraire les informations du payload webhook\nconst payload = $json;\n\nreturn {\n  transactionId: payload.transactionId,\n  customerPhone: payload.customerPhone,\n  customerName: payload.customerName,\n  chatId: payload.chatId,\n  decoderNumber: payload.decoderNumber,\n  platform: payload.platform,\n  amount: payload.amount,\n  status: payload.status,\n  activationTime: new Date().toISOString()\n};"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                176,
+                240
+            ],
+            "id": "9c505278-1c71-47b5-b775-2ad6bfeaa4d5",
+            "name": "Process Activation Data"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://ali-mobile-backend.onrender.com/api/admin/confirm-activation",
+                "sendHeaders": true,
+                "specifyHeaders": "json",
+                "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"transactionId\": \"{{ $json.transactionId }}\",\n  \"customerPhone\": \"{{ $json.customerPhone }}\",\n  \"status\": \"ACTIVATED\",\n  \"activatedAt\": \"{{ $json.activationTime }}\"\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.3,
+            "position": [
+                688,
+                240
+            ],
+            "id": "77bc5983-d1b4-4004-a3f0-86d83d9fa2e6",
+            "name": "HTTP Request"
+        },
+        {
+            "parameters": {
+                "operation": "send",
+                "phoneNumberId": "998887679983632",
+                "recipientPhoneNumber": "={{ $json.chatId || $json.customerPhone }}",
+                "textBody": "=✅ *Confirmation d'Activation*\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur *{{ $json.decoderNumber }}* a été activé avec succès !\n\nMontant: {{ $json.amount }} USD\nID Transaction: {{ $json.transactionId }}\n\nMerci d'avoir choisi Ali Mobile !",
+                "additionalFields": {}
+            },
+            "type": "n8n-nodes-base.whatsApp",
+            "typeVersion": 1.1,
+            "position": [
+                512,
+                144
+            ],
+            "id": "439fedd1-3f07-454b-99ac-a6e1a96c72d8",
+            "name": "Send message1",
+            "webhookId": "d5cc0f91-8dc8-4a66-a77b-f50f6a5282ff",
+            "credentials": {
+                "whatsAppApi": {
+                    "id": "bmI1KsRcN3qVXcEc",
+                    "name": "WhatsApp account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.chatId }}",
+                "text": "=✅ *Confirmation d'Activation*\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur *{{ $json.decoderNumber }}* a été activé avec succès !\n\nMontant: {{ $json.amount }} USD\nID Transaction: {{ $json.transactionId }}\n\nMerci d'avoir choisi Ali Mobile !",
+                "additionalFields": {
+                    "parse_mode": "Markdown"
+                }
+            },
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1.2,
+            "position": [
+                512,
+                336
+            ],
+            "id": "9edbb1f1-19e7-4cd0-9929-79719dfdbec8",
+            "name": "Send a text message",
+            "webhookId": "c803897e-7cb6-4142-918f-06ceed2d0e75",
+            "credentials": {
+                "telegramApi": {
+                    "id": "2xSRuL8gkBAtQ7Bz",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": false,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "a0f987ea-ad68-4ca6-b6e2-335e88e2c9b2",
+                            "leftValue": "={{ $json.platform }}",
+                            "rightValue": "WhatsApp",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                336,
+                240
+            ],
+            "id": "1dc84d21-5870-4b16-b132-403d41f43da1",
+            "name": "If"
+        }
+    ],
+    "connections": {
+        "Webhook - Activation Confirmation": {
+            "main": [
+                [
+                    {
+                        "node": "Process Activation Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Activation Data": {
+            "main": [
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send message1": {
+            "main": [
+                [
+                    {
+                        "node": "HTTP Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send a text message": {
+            "main": [
+                [
+                    {
+                        "node": "HTTP Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "Send message1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Send a text message",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "7046fd17c6464e45939cba187bee7f5553032653e6338f3db1151f778397a768"
+    }
+}

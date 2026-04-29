@@ -3,7 +3,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 exports.initiate = async (req, res) => {
-    const { customerPhone, customerName, platform, decoderNumber, amount, telecom = 'MP' } = req.body;
+    const { customerPhone, customerName, platform, chatId, decoderNumber, amount, telecom = 'MP' } = req.body;
 
     try {
         // Validate required fields
@@ -16,6 +16,7 @@ exports.initiate = async (req, res) => {
             data: {
                 customerPhone,
                 customerName,
+                chatId,
                 platform,
                 decoderNumber,
                 amount,

@@ -27,6 +27,7 @@ model Transaction {
   id                    String            @id @default(uuid())
   customerPhone         String
   customerName          String?
+  chatId                String?
   platform              String
   decoderNumber         String
   amount                Float

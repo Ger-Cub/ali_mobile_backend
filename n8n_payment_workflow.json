@@ -2,7 +2,7 @@
   "nodes": [
     {
       "parameters": {
-        "toolDescription": "Déclenche le paiement dans le système Ali Mobile en envoyant les informations de l'utilisateur WhatsApp\n\n📱 INFORMATIONS REQUISES:\n- phone: numéro de téléphone du client (ex: +243812345678)\n- userName: nom du client WhatsApp\n- decoderNumber: numéro du décodeur TV\n- amount: montant à payer (en USD)\n- telecom: opérateur de paiement mobile\n\n💳 **Valeurs possibles pour `telecom`:**\n- `AM` - Airtel Money\n- `OM` - Orange Money  \n- `MP` - Mpesa/Vodacom\n- `AF` - Africell\n\n✅ RÉPONSE ATTENDUE:\n{\n  \"message\": \"Payment initiated successfully\",\n  \"transactionId\": \"uuid-du-paiement\",\n  \"providerResponse\": {...}\n}",
+        "toolDescription": "Déclenche le paiement dans le système Ali Mobile en envoyant les informations de l'utilisateur WhatsApp/Telegram\n\n📱 INFORMATIONS REQUISES:\n- phone: numéro de téléphone du client (ex: +243812345678)\n- userName: nom du client\n- chatID: ID unique de l'utilisateur sur la plateforme (numéro pour WhatsApp, ID pour Telegram)\n- decoderNumber: numéro du décodeur TV\n- amount: montant à payer (en USD)\n- telecom: opérateur de paiement mobile\n- platform: WhatsApp ou Telegram\n\n💳 **Valeurs possibles pour `telecom`:**\n- `AM` - Airtel Money\n- `OM` - Orange Money  \n- `MP` - Mpesa/Vodacom\n- `AF` - Africell\n\n✅ RÉPONSE ATTENDUE:\n{\n  \"message\": \"Payment initiated successfully\",\n  \"transactionId\": \"uuid-du-paiement\",\n  \"providerResponse\": {...}\n}",
         "method": "POST",
         "url": "http://localhost:5000/api/payment/initiate",
         "sendHeaders": true,
@@ -10,7 +10,7 @@
         "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"customerPhone\": \"{{ $json.phone }}\",\n  \"customerName\": \"{{ $json.userName || 'Customer' }}\",\n  \"platform\": \"WhatsApp\",\n  \"decoderNumber\": \"{{ $json.decoderNumber }}\",\n  \"amount\": {{ $json.amount }},\n  \"telecom\": \"{{ $json.telecom || 'MP' }}\"\n}",
+        "jsonBody": "={\n  \"customerPhone\": \"{{ $json.phone }}\",\n  \"customerName\": \"{{ $json.userName || 'Customer' }}\",\n  \"chatId\": \"{{ $json.chatID }}\",\n  \"platform\": \"{{ $json.platform || 'WhatsApp' }}\",\n  \"decoderNumber\": \"{{ $json.decoderNumber }}\",\n  \"amount\": {{ $json.amount }},\n  \"telecom\": \"{{ $json.telecom || 'MP' }}\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequestTool",

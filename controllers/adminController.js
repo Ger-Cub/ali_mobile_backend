@@ -38,6 +38,7 @@ exports.activateTransaction = async (req, res) => {
                 transactionId: updatedTransaction.id,
                 customerPhone: updatedTransaction.customerPhone,
                 customerName: updatedTransaction.customerName,
+                chatId: updatedTransaction.chatId,
                 platform: updatedTransaction.platform,
                 decoderNumber: updatedTransaction.decoderNumber,
                 status: 'ACTIVATED'
@@ -114,10 +115,10 @@ exports.getStats = async (req, res) => {
 };
 
 exports.testWhatsApp = async (req, res) => {
-    const { phone, name } = req.body;
+    const { phone, name, chatId, platform } = req.body;
 
-    if (!phone) {
-        return res.status(400).json({ message: 'Phone number is required' });
+    if (!phone && !chatId) {
+        return res.status(400).json({ message: 'Phone number or ChatId is required' });
     }
 
     try {
@@ -125,7 +126,8 @@ exports.testWhatsApp = async (req, res) => {
             transactionId: "TEST-12345",
             customerPhone: phone,
             customerName: name || "Utilisateur Test",
-            platform: "WhatsApp",
+            chatId: chatId || phone,
+            platform: platform || "WhatsApp",
             decoderNumber: "0000000000",
             status: 'TEST_NOTIFICATION'
         });

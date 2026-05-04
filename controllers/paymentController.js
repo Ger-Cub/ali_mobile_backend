@@ -3,7 +3,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 exports.initiate = async (req, res) => {
-    const { customerPhone, customerName, platform, chatId, decoderNumber, amount, telecom = 'MP' } = req.body;
+    const { customerPhone, customerName, platform, chatId, decoderNumber, amount, telecom = 'MP', service, country, packageName } = req.body;
 
     try {
         // Validate required fields
@@ -20,6 +20,9 @@ exports.initiate = async (req, res) => {
                 platform,
                 decoderNumber,
                 amount,
+                service,
+                country,
+                packageName,
                 status: 'PENDING',
             },
         });
@@ -54,14 +57,14 @@ exports.initiate = async (req, res) => {
             });
         } catch (apiError) {
             console.error('SerdiPay API Error:', apiError.response?.data || apiError.message);
-            
+
             // Update transaction status to failed
             await prisma.transaction.update({
                 where: { id: transaction.id },
                 data: { status: 'FAILED' }
             });
 
-            res.status(502).json({ 
+            res.status(502).json({
                 message: 'Failed to initiate payment with provider',
                 error: apiError.response?.data || apiError.message
             });
@@ -74,7 +77,7 @@ exports.initiate = async (req, res) => {
 };
 
 exports.initiateTest = async (req, res) => {
-    const { customerPhone, customerName, platform, chatId, decoderNumber, amount } = req.body;
+    const { customerPhone, customerName, platform, chatId, decoderNumber, amount, service, country, packageName } = req.body;
 
     try {
         // Validate required fields
@@ -91,6 +94,9 @@ exports.initiateTest = async (req, res) => {
                 platform,
                 decoderNumber,
                 amount,
+                service,
+                country,
+                packageName,
                 status: 'PENDING',
                 isTest: true,
                 providerTransactionId: `TEST-${crypto.randomBytes(4).toString('hex').toUpperCase()}`

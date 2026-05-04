@@ -31,6 +31,9 @@ model Transaction {
   platform              String
   decoderNumber         String
   amount                Float
+  service               String?
+  country               String?
+  packageName           String?
   status                TransactionStatus @default(PENDING)
   providerTransactionId String?           @unique
   isTest                Boolean           @default(false)

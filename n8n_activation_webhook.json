@@ -18,7 +18,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const payload = $json.body || {};\n\nreturn [{\n  json: {\n    transactionId: payload.transactionId ?? null,\n    customerPhone: payload.customerPhone ?? null,\n    customerName: payload.customerName ?? null,\n    chatId: payload.chatId ?? null,\n    decoderNumber: payload.decoderNumber ?? null,\n    platform: payload.platform ?? null,\n    amount: payload.amount ?? 0,\n    status: payload.status ?? \"pending\",\n    activationTime: new Date().toISOString()\n  }\n}];"
+        "jsCode": "const payload = $json.body || {};\n\nreturn [{\n  json: {\n    transactionId: payload.transactionId ?? null,\n    customerPhone: payload.customerPhone ?? null,\n    customerName: payload.customerName ?? null,\n    chatId: payload.chatId ?? null,\n    decoderNumber: payload.decoderNumber ?? null,\n    platform: payload.platform ?? null,\n    amount: payload.amount ?? 0,\n    status: payload.status ?? \"pending\",\n    service: payload.service ?? null,\n    country: payload.country ?? null,\n    packageName: payload.packageName ?? null,\n    activationTime: new Date().toISOString()\n  }\n}];"
       },
       "id": "8614066a-6cdf-4841-9caa-4723356a6908",
       "name": "Process Data",
@@ -110,7 +110,7 @@
         "operation": "send",
         "phoneNumberId": "YOUR_PHONE_NUMBER_ID",
         "recipientPhoneNumber": "={{ $json.chatId || $json.customerPhone }}",
-        "textBody": "=✅ Confirmation d'Activation\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur {{ $json.decoderNumber }} a été activé.\n\nMontant: {{ $json.amount }} USD\nID: {{ $json.transactionId }}",
+        "textBody": "=✅ Confirmation d'Activation {{ $json.service ? ('- ' + $json.service) : '' }}\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement {{ $json.packageName || '' }} pour le compte/décodeur {{ $json.decoderNumber }} a été activé.\n\nMontant: {{ $json.amount }} USD\nID: {{ $json.transactionId }}",
         "additionalFields": {}
       },
       "id": "4b90b6e0-c8fd-4a74-a9fd-f2b0b704e000",
@@ -132,7 +132,7 @@
     {
       "parameters": {
         "chatId": "={{ $json.chatId }}",
-        "text": "=✅ Confirmation d'Activation\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur {{ $json.decoderNumber }} a été activé.\n\nMontant: {{ $json.amount }} USD\nID: {{ $json.transactionId }}",
+        "text": "=✅ Confirmation d'Activation {{ $json.service ? ('- ' + $json.service) : '' }}\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement {{ $json.packageName || '' }} pour le compte/décodeur {{ $json.decoderNumber }} a été activé.\n\nMontant: {{ $json.amount }} USD\nID: {{ $json.transactionId }}",
         "additionalFields": {}
       },
       "id": "6308bf37-356c-4ae6-af04-950f27b2721c",

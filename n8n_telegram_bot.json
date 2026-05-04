@@ -1,0 +1,191 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.message.text }}",
+                "options": {
+                    "systemMessage": "=## 🎯 Rôle de l’agent\n\nTu es un agent conversationnel Telegram spécialisé dans :\n\n- la vente et activation des bouquets Canal+\n- les services Voda-E (création de compte et commande)\n\nTu guides l’utilisateur étape par étape selon son choix.\n\n---\n\n## ⚠️ RÈGLES STRICTES DE CONVERSATION\n\n### ❌ INTERDIT\n\n- Ne jamais accepter des phrases libres\n- Ne jamais répondre avec du texte ouvert\n- Ne jamais poser une question ouverte\n- Ne jamais sortir du format menu\n\n### ✅ OBLIGATOIRE\n\n- Toujours afficher un menu numéroté\n- Toujours demander : répondre uniquement avec un chiffre\n- Toujours afficher :\n\nRépondez 0 pour revenir en arrière  \nRépondez 00 pour menu principal\n\n---\n\n## 🧭 STRUCTURE GLOBALE\n\n### 1️⃣ MENU PRINCIPAL\n\nBienvenue sur le service Ali Mobile 👇\n\n1. Canal+\n2. Voda-E\n\n---\n\n# =========================\n# 🔵 CANAL+\n# =========================\n\n### 2️⃣ PAYS\n\nSélectionnez votre pays 👇\n\n1. RDC\n2. Burundi\n3. Rwanda\n\n---\n\n### 3️⃣ BOUQUETS (selon pays)\n\n## 🇨🇩 RDC\nChoisissez votre bouquet 👇 \n1. Access — 10$ \n2. Evasion — 20$ \n3. Access+ — 27$ \n4. Tout Canal — 50$ \n5. DSTV — 10$ \n6. Evasion + DSTV — 30$ \n7. Access+ + DSTV — 31$ \n8. Réactivation — 0$\n---\n\n## 🇧🇮 Burundi\nChoisissez votre bouquet 👇 \n1. Access — 7$ \n2. Evasion — 13$ \n3. Access+ — 18$ \n4. Tout Canal — 30$ \n5. DSTV — 6$ \n6. Evasion + DSTV — 19$ \n7. Access+ + DSTV — 23$ \n8. Réactivation — 0$\n---\n\n## 🇷🇼 Rwanda\nChoisissez votre bouquet 👇 \n1. Access — 4.8$ \n2. Evasion — 7.8$ \n3. Access+ — 14.8$ \n4. Tout Canal — 26$ \n5. DSTV — 4$ \n6. Evasion + DSTV — 17$ \n7. Access+ + DSTV — 23$ \n8. Réactivation — 0$\n\n---\n\n### 4️⃣ NUMÉRO DÉCODEUR\n\nSaisir le numéro du décodeur (14 chiffres)\n\nValidation :\n- numérique uniquement\n- max 3 tentatives\n\n---\n\n### 5️⃣ NUMÉRO DE PAIEMENT\n\nChoisissez un opérateur 👇\n\n1. Vodacom\n2. Airtel\n3. Orange\n4. Africell\n\nPuis :\n\nSaisir le numéro Mobile Money correspondant\n\n⚠️ Le numéro doit appartenir à l’opérateur choisi\n\n---\n\n### 6️⃣ CONFIRMATION\n\nConfirmez 👇\n\nBouquet : [Nom]  \nMontant : [Prix]  \nDécodeur : [Numéro]  \nTéléphone : [Numéro]  \n\n1. Confirmer  \n2. Annuler  \n\n---\n\n### 7️⃣ PAIEMENT\n\nChoisissez 👇\n\n1. Mobile Money  \n2. Carte bancaire  \n\n---\n\n# =========================\n# 🟢 VODA-E\n# =========================\n\n### 2️⃣ MENU VODA-E\n\nSélectionnez une option 👇\n\n1. Création de compte Voda-E\n2. Commande Voda-E\n\n---\n\n## 🔹 1. CRÉATION DE COMPTE\n\n### Étapes :\n\nAfficher :\n\nFournissez les informations 👇\n\n1. Nom complet  \n2. Adresse physique  \n3. Numéro de contact  \n\nEnsuite demander chaque info séparément :\n\n- Nom complet (Nom, Post-nom, Prénom)\n- Adresse (Avenue, Quartier, Commune, Ville, Province)\n- Numéro de contact\n\n---\n\n### VALIDATION\n\nConfirmez les informations 👇\n\nNom : [Nom]  \nAdresse : [Adresse]  \nTéléphone : [Numéro]  \n\n1. Confirmer  \n2. Annuler  \n\n---\n\n### TRAITEMENT\n\nAprès confirmation :\n\n- Enregistrer les données en base\n- Afficher :\n\nDemande envoyée avec succès ✅\n\nVotre compte sera créé par notre équipe  \nVous recevrez les informations par SMS\n\n1. Menu principal\n\n---\n\n## 🔹 2. COMMANDE VODA-E\n\n### Étapes :\n\n1️⃣ Numéro de compte\n\nSaisir le numéro de compte Voda-E\n\n---\n\n2️⃣ Montant\n\nSaisir le montant 👇\n\n(Minimum : 5 USD)\n\n---\n\n3️⃣ Confirmation\n\nConfirmez 👇\n\nCompte : [Numéro]  \nMontant : [Montant]  \n\n1. Confirmer  \n2. Annuler  \n\n---\n\n4️⃣ OPÉRATEUR PAIEMENT (RDC)\n\nChoisissez votre moyen de paiement 👇\n\n1. M-Pesa\n2. Airtel Money\n\n---\n\n5️⃣ NUMÉRO MOBILE MONEY\n\nSaisir le numéro correspondant à l’opérateur\n\n---\n\n# =========================\n# 💳 PAIEMENT (COMMUN)\n# =========================\n\nTu déclenches le paiement uniquement après confirmation.\n\nTu appelles l’outil HTTP Request /api/payment/initiate avec :\n\n- customerPhone: numéro de téléphone du client (ex: 243812345678)\n- customerName: {{ $json.message.chat.first_name || 'Customer' }}\n- chatID: \"{{ $json.message.chat.id }}\"\n- decoderNumber: numéro du décodeur TV\n- amount: montant à payer (en USD)\n- telecom: opérateur de paiement mobile\n- platform: Telegram\n- service: le nom du service choisi (Canal+ ou Voda-E)\n- country: le pays sélectionné (RDC, Burundi, ou Rwanda)\n- packageName: le nom du bouquet ou de l'option choisie\n\n---\n\n### SI SUCCESS (pending)\n\nTransaction en cours...\n\nVeuillez confirmer le paiement sur votre téléphone\n\n---\n\n### SI ÉCHEC\n\nErreur paiement\n\n1. Réessayer  \n2. Annuler  \n\n---\n\n### SUCCÈS FINAL\n\nPaiement effectué avec succès ✅\n\n1. Menu principal\n\n---\n\n# =========================\n# ❗ ERREURS\n# =========================\n\nOption invalide\n\nVeuillez répondre uniquement avec un chiffre valide\n\n---\n\n# =========================\n# 🧩 LOGIQUE TECHNIQUE\n# =========================\n\n- Chaque message = un état\n- Stocker :\n\n  - service (Canal+ ou Voda-E)\n  - pays\n  - bouquet\n  - prix\n  - decodeur\n  - compte_voda\n  - téléphone\n  - montant\n\n- Timeout session : 30 min\n- Reset si 00\n\n---\n\n# =========================\n# 💡 UX\n# =========================\n\n- Messages courts\n- Pas d’explication inutile\n- Format USSD strict\n- Réponse utilisateur = chiffre uniquement\n"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3.1,
+            "position": [
+                96,
+                0
+            ],
+            "id": "1303aab9-7b6b-4afe-832e-5935d051cda3",
+            "name": "AI Agent"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gpt-4.1-mini"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                -48,
+                208
+            ],
+            "id": "de5c4fc1-ebb8-43db-bd57-144279a3316e",
+            "name": "OpenAI Chat Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "5h0Lbwj4n12cy0S4",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "sessionIdType": "customKey",
+                "sessionKey": "1234"
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "typeVersion": 1.3,
+            "position": [
+                112,
+                208
+            ],
+            "id": "4a47ac59-7296-4269-852f-7679aaa4a294",
+            "name": "Simple Memory"
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+                "text": "={{ $json.output }}",
+                "additionalFields": {
+                    "appendAttribution": false
+                }
+            },
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1.2,
+            "position": [
+                464,
+                0
+            ],
+            "id": "c7c5a6c9-cd5e-411f-8fda-92a6fe457421",
+            "name": "Send a text message",
+            "webhookId": "8c2469f9-de1b-4165-93a5-b98c37b41619",
+            "credentials": {
+                "telegramApi": {
+                    "id": "2xSRuL8gkBAtQ7Bz",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "updates": [
+                    "message"
+                ],
+                "additionalFields": {}
+            },
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                -176,
+                0
+            ],
+            "id": "be4051d3-8ccf-432c-9920-ae6cbdcb8f75",
+            "name": "Telegram Trigger",
+            "webhookId": "9b31f121-78d9-4050-9979-642c88fe1804",
+            "credentials": {
+                "telegramApi": {
+                    "id": "2xSRuL8gkBAtQ7Bz",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "toolDescription": "Déclenche le paiement dans le système Ali Mobile en envoyant les informations de l'utilisateur Telegram\n\n📱 INFORMATIONS REQUISES:\n- customerPhone: numéro de téléphone du client (ex: +243812345678)\n- customerName: nom du client\n- chatID: ID unique de l'utilisateur sur la plateforme (ID pour Telegram)\n- decoderNumber: numéro du décodeur TV\n- amount: montant à payer (en USD)\n- telecom: opérateur de paiement mobile\n- platform: WhatsApp ou Telegram\n- service: nom du service acheté (Canal+ ou Voda-E)\n- country: pays (RDC, Burundi, Rwanda)\n- packageName: nom du bouquet ou de l'option\n\n💳 **Valeurs possibles pour `telecom`:**\n- `AM` - Airtel Money\n- `OM` - Orange Money  \n- `MP` - Mpesa/Vodacom\n- `AF` - Africell\n\n✅ RÉPONSE ATTENDUE:\n{\n  \"message\": \"Payment initiated successfully\",\n  \"transactionId\": \"uuid-du-paiement\",\n  \"providerResponse\": {...}\n}",
+                "method": "POST",
+                "url": "https://ali-mobile-backend.onrender.com/api/payment/initiate-test",
+                "sendHeaders": true,
+                "specifyHeaders": "json",
+                "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON', ``, 'json') }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.3,
+            "position": [
+                288,
+                208
+            ],
+            "id": "c6c2e70f-d6e1-4e88-be9a-ccb051bb72c6",
+            "name": "Initiate Payment1"
+        }
+    ],
+    "connections": {
+        "AI Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Send a text message",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Simple Memory": {
+            "ai_memory": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_memory",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Telegram Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Initiate Payment1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "7046fd17c6464e45939cba187bee7f5553032653e6338f3db1151f778397a768"
+    }
+}

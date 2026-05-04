@@ -11,8 +11,11 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-// Security Headers
-app.use(helmet());
+// Security Headers - Relaxed for cross-origin dashboard compatibility
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Disable CSP if it causes issues with the dashboard, or configure it properly
+}));
 
 // CORS Configuration
 const allowedOrigins = [
@@ -33,13 +36,15 @@ const corsOptions = {
         if (!origin) return callback(null, true);
         
         const cleanOrigin = origin.replace(/\/$/, "");
-        if (allowedOrigins.includes(cleanOrigin)) {
+        if (allowedOrigins.includes(cleanOrigin) || process.env.NODE_ENV === 'development') {
             callback(null, true);
         } else {
             console.warn(`CORS blocked for origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     credentials: true,
     optionsSuccessStatus: 200,
 };

@@ -35,7 +35,26 @@ exports.confirmTestPayment = async (req, res) => {
             data: { status: 'PAID' },
         });
 
-        res.json({ message: 'Test payment confirmed manually', transaction: updatedTransaction });
+        // Notify n8n for WhatsApp/Telegram notification
+        try {
+            await axios.post(process.env.N8N_ACTIVATION_WEBHOOK_URL, {
+                transactionId: updatedTransaction.id,
+                customerPhone: updatedTransaction.customerPhone,
+                customerName: updatedTransaction.customerName,
+                chatId: updatedTransaction.chatId || updatedTransaction.customerPhone,
+                platform: updatedTransaction.platform || 'WhatsApp',
+                decoderNumber: updatedTransaction.decoderNumber,
+                amount: updatedTransaction.amount,
+                service: updatedTransaction.service,
+                country: updatedTransaction.country,
+                packageName: updatedTransaction.packageName,
+                status: 'PAID'
+            });
+        } catch (n8nError) {
+            console.error('Failed to notify n8n (test payment):', n8nError.message);
+        }
+
+        res.json({ message: 'Test payment confirmed manually and client notified', transaction: updatedTransaction });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error confirming test payment' });
@@ -68,13 +87,17 @@ exports.activateTransaction = async (req, res) => {
                 transactionId: updatedTransaction.id,
                 customerPhone: updatedTransaction.customerPhone,
                 customerName: updatedTransaction.customerName,
-                chatId: updatedTransaction.chatId,
-                platform: updatedTransaction.platform,
+                chatId: updatedTransaction.chatId || updatedTransaction.customerPhone,
+                platform: updatedTransaction.platform || 'WhatsApp',
                 decoderNumber: updatedTransaction.decoderNumber,
+                amount: updatedTransaction.amount,
+                service: updatedTransaction.service,
+                country: updatedTransaction.country,
+                packageName: updatedTransaction.packageName,
                 status: 'ACTIVATED'
             });
         } catch (n8nError) {
-            console.error('Failed to notify n8n:', n8nError.message);
+            console.error('Failed to notify n8n (activation):', n8nError.message);
             // We don't rollback the activation, but we log the error
         }
 
@@ -195,15 +218,15 @@ exports.testWhatsApp = async (req, res) => {
             status: 'TEST_NOTIFICATION'
         });
 
-        res.json({ 
-            message: 'Test notification sent to n8n', 
-            n8nResponse: response.data 
+        res.json({
+            message: 'Test notification sent to n8n',
+            n8nResponse: response.data
         });
     } catch (error) {
         console.error('Failed to notify n8n:', error.message);
-        res.status(500).json({ 
-            message: 'Failed to send test notification', 
-            error: error.message 
+        res.status(500).json({
+            message: 'Failed to send test notification',
+            error: error.message
         });
     }
 };

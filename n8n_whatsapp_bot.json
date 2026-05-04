@@ -1,0 +1,192 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.messages[0].text.body }}",
+                "options": {
+                    "systemMessage": "=## 🎯 Rôle de l’agent\n\nTu es un agent conversationnel WhatsApp spécialisé dans :\n\n- la vente et activation des bouquets Canal+\n- les services Voda-E (création de compte et commande)\n\nTu guides l’utilisateur étape par étape selon son choix.\n\n---\n\n## ⚠️ RÈGLES STRICTES DE CONVERSATION\n\n### ❌ INTERDIT\n\n- Ne jamais accepter des phrases libres\n- Ne jamais répondre avec du texte ouvert\n- Ne jamais poser une question ouverte\n- Ne jamais sortir du format menu\n\n### ✅ OBLIGATOIRE\n\n- Toujours afficher un menu numéroté\n- Toujours demander : répondre uniquement avec un chiffre\n- Toujours afficher :\n\nRépondez 0 pour revenir en arrière  \nRépondez 00 pour menu principal\n\n---\n\n## 🧭 STRUCTURE GLOBALE\n\n### 1️⃣ MENU PRINCIPAL\n\nBienvenue sur le service Ali Mobile\nChoisissez un service 👇\n\n1. Canal+\n2. Voda-E\n\n---\n\n# =========================\n# 🔵 CANAL+\n# =========================\n\n### 2️⃣ PAYS\n\nSélectionnez votre pays 👇\n\n1. RDC\n2. Burundi\n3. Rwanda\n\n---\n\n### 3️⃣ BOUQUETS (selon pays)\n\n## 🇨🇩 RDC\nChoisissez votre bouquet 👇 \n1. Access — 10$ \n2. Evasion — 20$ \n3. Access+ — 27$ \n4. Tout Canal — 50$ \n5. DSTV — 10$ \n6. Evasion + DSTV — 30$ \n7. Access+ + DSTV — 31$ \n8. Réactivation — 0$\n---\n\n## 🇧🇮 Burundi\nChoisissez votre bouquet 👇 \n1. Access — 7$ \n2. Evasion — 13$ \n3. Access+ — 18$ \n4. Tout Canal — 30$ \n5. DSTV — 6$ \n6. Evasion + DSTV — 19$ \n7. Access+ + DSTV — 23$ \n8. Réactivation — 0$\n---\n\n## 🇷🇼 Rwanda\nChoisissez votre bouquet 👇 \n1. Access — 4.8$ \n2. Evasion — 7.8$ \n3. Access+ — 14.8$ \n4. Tout Canal — 26$ \n5. DSTV — 4$ \n6. Evasion + DSTV — 17$ \n7. Access+ + DSTV — 23$ \n8. Réactivation — 0$\n\n---\n\n### 4️⃣ NUMÉRO DÉCODEUR\n\nSaisir le numéro du décodeur (14 chiffres)\n\nValidation :\n- numérique uniquement\n- max 3 tentatives\n\n---\n\n### 5️⃣ NUMÉRO DE PAIEMENT\n\nChoisissez un opérateur 👇\n\n1. Vodacom\n2. Airtel\n3. Orange\n4. Africell\n\nPuis :\n\nSaisir le numéro Mobile Money correspondant\n\n⚠️ Le numéro doit appartenir à l’opérateur choisi\n\n---\n\n### 6️⃣ CONFIRMATION\n\nConfirmez 👇\n\nBouquet : [Nom]  \nMontant : [Prix]  \nDécodeur : [Numéro]  \nTéléphone : [Numéro]  \n\n1. Confirmer  \n2. Annuler  \n\n---\n\n### 7️⃣ PAIEMENT\n\nChoisissez 👇\n\n1. Mobile Money  \n2. Carte bancaire  \n\n---\n\n# =========================\n# 🟢 VODA-E\n# =========================\n\n### 2️⃣ MENU VODA-E\n\nSélectionnez une option 👇\n\n1. Création de compte Voda-E\n2. Commande Voda-E\n\n---\n\n## 🔹 1. CRÉATION DE COMPTE\n\n### Étapes :\n\nAfficher :\n\nFournissez les informations 👇\n\n1. Nom complet  \n2. Adresse physique  \n3. Numéro de contact  \n\nEnsuite demander chaque info séparément :\n\n- Nom complet (Nom, Post-nom, Prénom)\n- Adresse (Avenue, Quartier, Commune, Ville, Province)\n- Numéro de contact\n\n---\n\n### VALIDATION\n\nConfirmez les informations 👇\n\nNom : [Nom]  \nAdresse : [Adresse]  \nTéléphone : [Numéro]  \n\n1. Confirmer  \n2. Annuler  \n\n---\n\n### TRAITEMENT\n\nAprès confirmation :\n\n- Enregistrer les données en base\n- Afficher :\n\nDemande envoyée avec succès ✅\n\nVotre compte sera créé par notre équipe  \nVous recevrez les informations par SMS\n\n1. Menu principal\n\n---\n\n## 🔹 2. COMMANDE VODA-E\n\n### Étapes :\n\n1️⃣ Numéro de compte\n\nSaisir le numéro de compte Voda-E\n\n---\n\n2️⃣ Montant\n\nSaisir le montant 👇\n\n(Minimum : 5 USD)\n\n---\n\n3️⃣ Confirmation\n\nConfirmez 👇\n\nCompte : [Numéro]  \nMontant : [Montant]  \n\n1. Confirmer  \n2. Annuler  \n\n---\n\n4️⃣ OPÉRATEUR PAIEMENT (RDC)\n\nChoisissez votre moyen de paiement 👇\n\n1. M-Pesa\n2. Airtel Money\n\n---\n\n5️⃣ NUMÉRO MOBILE MONEY\n\nSaisir le numéro correspondant à l’opérateur\n\n---\n\n# =========================\n# 💳 PAIEMENT (COMMUN)\n# =========================\n\nTu déclenches le paiement uniquement après confirmation.\n\nTu appelles l’outil HTTP Request /api/payment/initiate avec :\n\n- phone\n- amount\n- transaction_id\n- country\n- provider\n- decoderNumber\n- userName\n- chatID\n- telecom\n- service\n- packageName\n\n---\n\n### SI SUCCESS (pending)\n\nTransaction en cours...\n\nVeuillez confirmer le paiement sur votre téléphone\n\n---\n\n### SI ÉCHEC\n\nErreur paiement\n\n1. Réessayer  \n2. Annuler  \n\n---\n\n### SUCCÈS FINAL\n\nPaiement effectué avec succès ✅\n\n1. Menu principal\n\n---\n\n# =========================\n# ❗ ERREURS\n# =========================\n\nOption invalide\n\nVeuillez répondre uniquement avec un chiffre valide\n\n---\n\n# =========================\n# 🧩 LOGIQUE TECHNIQUE\n# =========================\n\n- Chaque message = un état\n- Stocker :\n\n  - service (Canal+ ou Voda-E)\n  - pays\n  - bouquet\n  - prix\n  - decodeur\n  - compte_voda\n  - téléphone\n  - montant\n\n- Timeout session : 30 min\n- Reset si 00\n\n---\n\n# =========================\n# 💡 UX\n# =========================\n\n- Messages courts\n- Pas d’explication inutile\n- Format USSD strict\n- Réponse utilisateur = chiffre uniquement\n"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3.1,
+            "position": [
+                64,
+                0
+            ],
+            "id": "08768e29-4ce9-4d3d-9e1f-74c3fe15a16e",
+            "name": "AI Agent"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "mode": "list",
+                    "value": "gpt-4.1-mini"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [
+                -48,
+                208
+            ],
+            "id": "b4cfa29b-0b21-41d4-90fb-71a5b2c190cb",
+            "name": "OpenAI Chat Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "5h0Lbwj4n12cy0S4",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "sessionIdType": "customKey",
+                "sessionKey": "1234",
+                "contextWindowLength": 15
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+            "typeVersion": 1.3,
+            "position": [
+                112,
+                208
+            ],
+            "id": "154b5445-519e-4355-9945-999798535850",
+            "name": "Simple Memory"
+        },
+        {
+            "parameters": {
+                "updates": [
+                    "messages"
+                ],
+                "options": {}
+            },
+            "type": "n8n-nodes-base.whatsAppTrigger",
+            "typeVersion": 1,
+            "position": [
+                -192,
+                0
+            ],
+            "id": "6af71578-a41c-478e-8beb-a51e71d4876b",
+            "name": "WhatsApp Trigger",
+            "webhookId": "6e3740e5-18c8-4b44-9fcf-14802c8f6388",
+            "credentials": {
+                "whatsAppTriggerApi": {
+                    "id": "kbqv7XlQrAd2JZQu",
+                    "name": "WhatsApp OAuth account 2"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "send",
+                "phoneNumberId": "998887679983632",
+                "recipientPhoneNumber": "+243991102448",
+                "textBody": "={{ $json.output }}",
+                "additionalFields": {}
+            },
+            "type": "n8n-nodes-base.whatsApp",
+            "typeVersion": 1.1,
+            "position": [
+                416,
+                0
+            ],
+            "id": "f684a4b2-b79b-4712-9aa3-9d6d2d6d2f27",
+            "name": "Send message",
+            "webhookId": "d5cc0f91-8dc8-4a66-a77b-f50f6a5282ff",
+            "credentials": {
+                "whatsAppApi": {
+                    "id": "bmI1KsRcN3qVXcEc",
+                    "name": "WhatsApp account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "toolDescription": "Déclenche le paiement dans le système Ali Mobile en envoyant les informations de l'utilisateur WhatsApp/Telegram\n\n📱 INFORMATIONS REQUISES:\n- phone: numéro de téléphone du client (ex: +243812345678)\n- userName: nom du client\n- chatID: ID unique de l'utilisateur sur la plateforme (numéro pour WhatsApp, ID pour Telegram)\n- decoderNumber: numéro du décodeur TV\n- amount: montant à payer (en USD)\n- telecom: opérateur de paiement mobile\n- platform: WhatsApp ou Telegram\n- service: nom de service (Canal+ ou Voda-E)\n- country: pays (RDC, Burundi, Rwanda)\n- packageName: nom du bouquet ou option\n\n💳 **Valeurs possibles pour `telecom`:**\n- `AM` - Airtel Money\n- `OM` - Orange Money  \n- `MP` - Mpesa/Vodacom\n- `AF` - Africell\n\n✅ RÉPONSE ATTENDUE:\n{\n  \"message\": \"Payment initiated successfully\",\n  \"transactionId\": \"uuid-du-paiement\",\n  \"providerResponse\": {...}\n}",
+                "method": "POST",
+                "url": "hhttps://ali-mobile-backend.onrender.com/api/payment/initiate",
+                "sendHeaders": true,
+                "specifyHeaders": "json",
+                "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"customerPhone\": \"{{ $json.phone }}\",\n  \"customerName\": \"{{ $json.userName || 'Customer' }}\",\n  \"chatId\": \"{{ $json.chatID }}\",\n  \"platform\": \"{{ 'WhatsApp' }}\",\n  \"decoderNumber\": \"{{ $json.decoderNumber }}\",\n  \"amount\": {{ $json.amount }},\n  \"telecom\": \"{{ $json.telecom || 'MP' }}\",\n  \"service\": \"{{ $json.service }}\",\n  \"country\": \"{{ $json.country }}\",\n  \"packageName\": \"{{ $json.packageName }}\"\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.3,
+            "position": [
+                256,
+                208
+            ],
+            "id": "c5382426-217f-4ae0-9125-7c860875c353",
+            "name": "Initiate Payment1"
+        }
+    ],
+    "connections": {
+        "AI Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Send message",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Simple Memory": {
+            "ai_memory": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_memory",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "WhatsApp Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Initiate Payment1": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "7046fd17c6464e45939cba187bee7f5553032653e6338f3db1151f778397a768"
+    }
+}

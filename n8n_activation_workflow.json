@@ -18,7 +18,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Extraire les informations du payload webhook\nconst payload = $json;\n\nreturn {\n  transactionId: payload.transactionId,\n  customerPhone: payload.customerPhone,\n  customerName: payload.customerName,\n  chatId: payload.chatId,\n  decoderNumber: payload.decoderNumber,\n  platform: payload.platform,\n  amount: payload.amount,\n  status: payload.status,\n  activationTime: new Date().toISOString()\n};"
+                "jsCode": "// Extraire les informations du payload webhook\nconst payload = $json;\n\nreturn {\n  transactionId: payload.transactionId,\n  customerPhone: payload.customerPhone,\n  customerName: payload.customerName,\n  chatId: payload.chatId,\n  decoderNumber: payload.decoderNumber,\n  platform: payload.platform,\n  amount: payload.amount,\n  status: payload.status,\n  service: payload.service,\n  country: payload.country,\n  packageName: payload.packageName,\n  activationTime: new Date().toISOString()\n};"
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
@@ -55,7 +55,7 @@
                 "operation": "send",
                 "phoneNumberId": "998887679983632",
                 "recipientPhoneNumber": "={{ $json.chatId || $json.customerPhone }}",
-                "textBody": "=✅ *Confirmation d'Activation*\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur *{{ $json.decoderNumber }}* a été activé avec succès !\n\nMontant: {{ $json.amount }} USD\nID Transaction: {{ $json.transactionId }}\n\nMerci d'avoir choisi Ali Mobile !",
+                "textBody": "=✅ *Confirmation d'Activation {{ $json.service ? ('- ' + $json.service) : '' }}*\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement {{ $json.packageName || '' }} pour le compte/décodeur *{{ $json.decoderNumber }}* a été activé avec succès !\n\nMontant: {{ $json.amount }} USD\nID Transaction: {{ $json.transactionId }}\n\nMerci d'avoir choisi Ali Mobile !",
                 "additionalFields": {}
             },
             "type": "n8n-nodes-base.whatsApp",
@@ -77,7 +77,7 @@
         {
             "parameters": {
                 "chatId": "={{ $json.chatId }}",
-                "text": "=✅ *Confirmation d'Activation*\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement pour le décodeur *{{ $json.decoderNumber }}* a été activé avec succès !\n\nMontant: {{ $json.amount }} USD\nID Transaction: {{ $json.transactionId }}\n\nMerci d'avoir choisi Ali Mobile !",
+                "text": "=✅ *Confirmation d'Activation {{ $json.service ? ('- ' + $json.service) : '' }}*\n\nBonjour {{ $json.customerName }},\n\nVotre abonnement {{ $json.packageName || '' }} pour le compte/décodeur *{{ $json.decoderNumber }}* a été activé avec succès !\n\nMontant: {{ $json.amount }} USD\nID Transaction: {{ $json.transactionId }}\n\nMerci d'avoir choisi Ali Mobile !",
                 "additionalFields": {
                     "parse_mode": "Markdown"
                 }

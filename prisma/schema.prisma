@@ -31,14 +31,14 @@ model Transaction {
   platform              String
   decoderNumber         String
   amount                Float
-  service               String?
-  country               String?
-  packageName           String?
   status                TransactionStatus @default(PENDING)
   providerTransactionId String?           @unique
-  isTest                Boolean           @default(false)
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
+  isTest                Boolean           @default(false)
+  country               String?
+  packageName           String?
+  service               String?
 }
 
 enum TransactionStatus {

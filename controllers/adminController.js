@@ -1,5 +1,48 @@
 const prisma = require('../config/db');
 const axios = require('axios');
+const bcrypt = require('bcryptjs');
+
+exports.getAdmins = async (req, res) => {
+    try {
+        const admins = await prisma.admin.findMany({
+            select: { id: true, name: true, email: true, createdAt: true }
+        });
+        res.json(admins);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching admins' });
+    }
+};
+
+exports.createAdmin = async (req, res) => {
+    const { name, email, password } = req.body;
+
+    try {
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        const existingAdmin = await prisma.admin.findUnique({ where: { email } });
+        if (existingAdmin) {
+            return res.status(400).json({ message: 'Admin with this email already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newAdmin = await prisma.admin.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword
+            },
+            select: { id: true, name: true, email: true, createdAt: true }
+        });
+
+        res.status(201).json({ message: 'Admin created successfully', admin: newAdmin });
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).json({ message: 'Error creating admin' });
+    }
+};
 
 exports.getTransactions = async (req, res) => {
     try {
@@ -41,7 +84,7 @@ exports.confirmTestPayment = async (req, res) => {
                 transactionId: updatedTransaction.id,
                 customerPhone: updatedTransaction.customerPhone,
                 customerName: updatedTransaction.customerName,
-                chatId: updatedTransaction.chatId || updatedTransaction.customerPhone,
+                chatId: updatedTransaction.platform === 'Telegram' ? updatedTransaction.chatId : (updatedTransaction.chatId || updatedTransaction.customerPhone),
                 platform: updatedTransaction.platform || 'WhatsApp',
                 decoderNumber: updatedTransaction.decoderNumber,
                 amount: updatedTransaction.amount,
@@ -87,7 +130,7 @@ exports.activateTransaction = async (req, res) => {
                 transactionId: updatedTransaction.id,
                 customerPhone: updatedTransaction.customerPhone,
                 customerName: updatedTransaction.customerName,
-                chatId: updatedTransaction.chatId || updatedTransaction.customerPhone,
+                chatId: updatedTransaction.platform === 'Telegram' ? updatedTransaction.chatId : (updatedTransaction.chatId || updatedTransaction.customerPhone),
                 platform: updatedTransaction.platform || 'WhatsApp',
                 decoderNumber: updatedTransaction.decoderNumber,
                 amount: updatedTransaction.amount,

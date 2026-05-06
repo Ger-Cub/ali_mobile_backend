@@ -13,6 +13,18 @@ exports.getAdmins = async (req, res) => {
     }
 };
 
+exports.getLogs = async (req, res) => {
+    try {
+        const logs = await prisma.log.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: { transaction: true }
+        });
+        res.json(logs);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching logs' });
+    }
+};
+
 exports.createAdmin = async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -95,6 +107,15 @@ exports.confirmTestPayment = async (req, res) => {
             });
         } catch (n8nError) {
             console.error('Failed to notify n8n (test payment):', n8nError.message);
+            await prisma.log.create({
+                data: {
+                    level: 'ERROR',
+                    source: 'n8n Webhook',
+                    message: `Failed to notify n8n for test confirmation: ${updatedTransaction.id}`,
+                    details: n8nError.message,
+                    transactionId: updatedTransaction.id
+                }
+            });
         }
 
         res.json({ message: 'Test payment confirmed manually and client notified', transaction: updatedTransaction });
@@ -141,7 +162,15 @@ exports.activateTransaction = async (req, res) => {
             });
         } catch (n8nError) {
             console.error('Failed to notify n8n (activation):', n8nError.message);
-            // We don't rollback the activation, but we log the error
+            await prisma.log.create({
+                data: {
+                    level: 'ERROR',
+                    source: 'n8n Webhook',
+                    message: `Failed to notify n8n for activation: ${updatedTransaction.id}`,
+                    details: n8nError.message,
+                    transactionId: updatedTransaction.id
+                }
+            });
         }
 
         res.json({ message: 'Transaction activated and client notified', transaction: updatedTransaction });

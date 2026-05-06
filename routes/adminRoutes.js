@@ -8,6 +8,7 @@ const requireAuth = passport.authenticate('jwt', { session: false });
 
 router.get('/admins', requireAuth, adminController.getAdmins);
 router.post('/admins', requireAuth, adminController.createAdmin);
+router.get('/logs', requireAuth, adminController.getLogs);
 
 router.get('/transactions', requireAuth, adminController.getTransactions);
 router.get('/stats', requireAuth, adminController.getStats);

@@ -65,6 +65,17 @@ exports.initiate = async (req, res) => {
                 data: { status: 'FAILED' }
             });
 
+            // Log error
+            await prisma.log.create({
+                data: {
+                    level: 'ERROR',
+                    source: 'SerdiPay Flow',
+                    message: `Failed to initiate payment. Transaction ID: ${transaction.id}. Error: ${apiError.message}`,
+                    details: apiError.response?.data || apiError.message,
+                    transactionId: transaction.id
+                }
+            });
+
             res.status(502).json({
                 message: 'Failed to initiate payment with provider',
                 error: apiError.response?.data || apiError.message
